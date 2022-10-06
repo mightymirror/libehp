@@ -1,4 +1,3 @@
-
 before_script:
   - "source ~gitlab-runner/cicd_support/cicd_support.shinc"
 
@@ -38,12 +37,6 @@ do-clean-ubuntu18:
   tags:
     - ubuntu18
 
-do-clean-ubuntu16:
-  stage: clean
-  script:
-    - ./cicd_testing/do-clean.sh
-  tags:
-    - ubuntu16
 
 do-clean-arm32:
   stage: clean
@@ -90,12 +83,6 @@ do-build-ubuntu18:
   tags:
     - ubuntu18
 
-do-build-ubuntu16:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - ubuntu16
 
 do-build-arm64:
   stage: build
@@ -143,12 +130,6 @@ do-test-ubuntu18:
   tags:
     - ubuntu18
 
-do-test-ubuntu16:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - ubuntu16
 
 do-test-arm32:
   stage: test
@@ -174,11 +155,21 @@ do-test-centos76:
 
 
 #
+# Fuzz
+#
+fuzz:
+  stage: fuzz
+  script:
+    - ./cicd_testing/do-fuzz.sh
+  tags:
+    - fuzz
+
+#
 # Deploy
 #
-do-deploy-ubuntu18:
+do-deploy-ubuntu22:
   stage: deploy
   script:
     - ./cicd_testing/do-deploy.sh
   tags:
-    - ubuntu18
+    - ubuntu22
