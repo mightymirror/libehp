@@ -33,19 +33,22 @@ function main()
 		turbo-cli fuzz --fuzz-config cicd_testing/afl.yaml --app-config cicd_testing/ehp-config.yaml --ver-id $vid
 
 	local report="$(turbo-cli log get report $vid)"
+	local proj_id=$CI_PROJECT_ID
+	local proj_urld=$CI_PROJECT_URL
 
 	echo "The report is: "
-	echo "$report" | tee fail_report.yaml
+	mkdir -p artifacts
+	echo "$report" | tee artifacts/fuzz_report.yaml
 
 	local declare crash_count=$(echo "$report"|shyaml get-value failing-input-count)
 
 	if [[ $crash_count == 0 ]]; then
 		echo "No crashes found"
+		echo "See [job details]($proj_url/-/jobs/$CI_JOB_ID), look at the artifacts for the full report."
 		exit 0
 	else
 		# upload the report.
-		local proj_id=114
-		local upload_report=$(curl --request POST --header "PRIVATE-TOKEN: PXLgVFpgjmmugAiHTJzx " --form "file=@fail_report.yaml" https://git.zephyr-software.com/api/v4/projects/$proj_id/uploads)
+		#local upload_report=$(curl --request POST --header "PRIVATE-TOKEN: PXLgVFpgjmmugAiHTJzx " --form "file=@artifacts/fuzz_report.yaml" https://git.zephyr-software.com/api/v4/projects/$proj_id/uploads)
 		local date=$(date)
 		local mach=$(uname -a)
 		local host=$(hostname)
@@ -60,17 +63,15 @@ Date: $date
 
 Machine details: $mach
 
-Full crash report is available here:   $md
-
-See [job details](https://git.zephyr-software.com/opensrc/libehp/-/jobs/$CI_JOB_ID)
-and [pipeline details](https://git.zephyr-software.com/opensrc/libehp/pipelines/$CI_PIPELINE_ID).
+See [job details]($proj_url/-/jobs/$CI_JOB_ID), look at the artifacts for the full report.
+and [pipeline details]($proj_url/pipelines/$CI_PIPELINE_ID).
 
 EOM
 		local title="Turbo found $crash_count bugs in libEHP on $date"
 		local assignee_id="$GITLAB_USER_ID"
 
 		# finally post an issue
-		curl --request POST --data-urlencode "description=$desc" --data-urlencode "title=$title" --header "PRIVATE-TOKEN: PXLgVFpgjmmugAiHTJzx " "https://git.zephyr-software.com//api/v4/projects/$proj_id/issues?&labels=bug,turbo&assignee_ids[]=$assignee_id"
+		# curl --request POST --data-urlencode "description=$desc" --data-urlencode "title=$title" --header "PRIVATE-TOKEN: PXLgVFpgjmmugAiHTJzx " "https://git.zephyr-software.com//api/v4/projects/$proj_id/issues?&labels=bug,turbo&assignee_ids[]=$assignee_id"
 
 		echo "$crash_count count crashes found!"
 		exit 1

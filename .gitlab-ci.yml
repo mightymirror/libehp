@@ -161,6 +161,9 @@ fuzz:
   stage: fuzz
   script:
     - ./cicd_testing/do-fuzz.sh
+  artifacts:
+    paths: 
+      - artifacts
   tags:
     - fuzz
 
