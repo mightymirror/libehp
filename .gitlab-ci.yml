@@ -6,153 +6,53 @@ after_script:
   - "echo Test Complete."
 
 stages:
-  - clean
-  - build
   - test
   - fuzz
   - deploy
 
 
-#
-# Cleaning
-#
-do-clean-ubuntu22:
-  stage: clean
+.test: &do-test
+  stage: test
   script:
     - ./cicd_testing/do-clean.sh
+    - ./cicd_testing/do-build.sh
+    - ./cicd_testing/do-test.sh
+
+#
+# test
+#
+ubuntu22:
+  <<: *do-test
   tags:
     - ubuntu22
 
-do-clean-ubuntu20:
-  stage: clean
-  script:
-    - ./cicd_testing/do-clean.sh
+ubuntu20:
+  <<: *do-test
   tags:
     - ubuntu20
 
-do-clean-ubuntu18:
-  stage: clean
+ubuntu18:
+  <<: *do-test
   script:
     - ./cicd_testing/do-clean.sh
   tags:
     - ubuntu18
 
 
-do-clean-arm32:
-  stage: clean
-  script:
-    - ./cicd_testing/do-clean.sh
+arm32:
+  <<: *do-test
   tags:
     - arm32
 
-do-clean-arm64:
-  stage: clean
-  script:
-    - ./cicd_testing/do-clean.sh
+arm64:
+  <<: *do-test
   tags:
     - arm64
 
-do-clean-centos76:
-  stage: clean
-  script:
-    - ./cicd_testing/do-clean.sh
+centos76:
+  <<: *do-test
   tags:
     - centos76
-
-#
-# Building
-#
-do-build-ubuntu22:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - ubuntu22
-
-do-build-ubuntu20:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - ubuntu20
-
-do-build-ubuntu18:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - ubuntu18
-
-
-do-build-arm64:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - arm64
-
-do-build-arm32:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - arm32
-
-do-build-centos76:
-  stage: build
-  script:
-    - ./cicd_testing/do-build.sh
-  tags:
-    - centos76
-
-
-#
-# Testing
-#
-do-test-ubuntu22:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - ubuntu22
-
-do-test-ubuntu20:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - ubuntu20
-
-do-test-ubuntu18:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - ubuntu18
-
-
-do-test-arm32:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - arm32
-
-do-test-arm64:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - arm64
-
-
-do-test-centos76:
-  stage: test
-  script:
-    - ./cicd_testing/do-test.sh
-  tags:
-    - centos76
-
 
 #
 # Fuzz
@@ -164,13 +64,14 @@ fuzz:
   artifacts:
     paths: 
       - artifacts
+    when: always
   tags:
     - fuzz
 
 #
 # Deploy
 #
-do-deploy-ubuntu22:
+ubuntu22:
   stage: deploy
   script:
     - ./cicd_testing/do-deploy.sh
