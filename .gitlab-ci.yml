@@ -49,10 +49,10 @@ arm64:
   tags:
     - arm64
 
-centos76:
+coss9:
   <<: *do-test
   tags:
-    - centos76
+    - coss9
 
 #
 # Fuzz
